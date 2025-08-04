@@ -87,6 +87,3 @@ This project was developed as a prototype to demonstrate the design and implemen
 
 Feel free to explore, test, and contribute.
 
-
-## Project Structure (High-level Overview)
-
