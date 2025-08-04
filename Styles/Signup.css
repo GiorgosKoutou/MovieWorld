@@ -1,0 +1,97 @@
+body {
+
+    margin: 50px;
+    padding-left: 5px;
+    background-color: aliceblue;
+    font-family: 'Roboto', sans-serif;
+
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Start of SignUp Form Style*/
+
+.SignUpForm {
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.SignUpForm h1 {
+
+    color: turquoise;
+    font-size: 30px;
+    align-items: center;
+    font-size: 48px;
+}
+
+.SignUpForm form {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+/* Start of SignUp Form's Label Style*/
+
+.SignUpForm label{
+
+    color: turquoise;
+    font-size: 30px;
+}
+
+.SignUpForm .name{
+
+    width: 400px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 108px;
+
+}
+
+.SignUpForm .username {
+
+    width: 400px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 52px;
+}
+
+
+.SignUpForm .password {
+
+    width: 400px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 55px;
+}
+
+/* End of SignUp Form's Label Style*/
+
+.SignUpForm button {
+
+    width: 150px;
+    padding: 3px 3px 3px 3px;
+    border: 2px black solid;
+    border-radius: 10px;
+    background-color: turquoise;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.SignUpForm button:hover{
+
+     background-color: rgb(33, 147, 136);
+}
+
+/* End of SignUp Form Style*/

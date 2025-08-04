@@ -1,0 +1,87 @@
+body {
+
+    margin: 50px;
+    padding-left: 5px;
+    background-color: aliceblue;
+    font-family: 'Roboto', sans-serif;
+
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Start of Login Form Style*/
+
+.loginForm {
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.loginForm h1 {
+
+    color: turquoise;
+    font-size: 30px;
+    align-items: center;
+    font-size: 48px;
+}
+
+.loginForm form {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+/* Start of Login Form's Label Style*/
+
+.loginForm label{
+
+    color: turquoise;
+    font-size: 30px;
+}
+
+.loginForm .username {
+
+    width: 400px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+}
+
+
+.loginForm .password {
+
+    width: 400px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 55px;
+}
+
+/* End of Login Form's Label Style*/
+
+.loginForm button {
+
+    width: 150px;
+    padding: 3px 3px 3px 3px;
+    border: 2px black solid;
+    border-radius: 10px;
+    background-color: turquoise;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.loginForm button:hover{
+
+     background-color: rgb(33, 147, 136);
+}
+
+/* End of Login Form Style*/

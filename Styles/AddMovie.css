@@ -1,0 +1,101 @@
+body {
+
+    margin: 50px;
+    padding-left: 5px;
+    background-color: aliceblue;
+    font-family: 'Roboto', sans-serif;
+
+}
+
+/* Start of Add Movie Form Style*/
+
+.AddMovieForm {
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.AddMovieForm h1 {
+
+    color: turquoise;
+    font-size: 30px;
+    align-items: center;
+    font-size: 48px;
+}
+
+.AddMovieForm form {
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+/* Start of Add Movie Form's Label Style*/
+
+.AddMovieForm label{
+
+    color: turquoise;
+    font-size: 30px;
+}
+
+.AddMovieForm .title{
+
+    width: 400px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 108px;
+
+}
+
+.AddMovieForm .description {
+
+    width: 400px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+
+.AddMovieForm .name {
+
+    width: 400px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 86px;
+}
+
+.AddMovieForm .date {
+
+    width: 400px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+/* End of Add Movie Form's Label Style*/
+
+.AddMovieForm button {
+
+    width: 200px;
+    padding: 3px 3px 3px 3px;
+    border: 2px black solid;
+    border-radius: 10px;
+    background-color: turquoise;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.AddMovieForm button:hover{
+
+     background-color: rgb(33, 147, 136);
+}
+
+/* End of Add Movie Form Style*/
