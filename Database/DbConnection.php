@@ -8,9 +8,9 @@ use PDOException;
 class DbConnection
 {
 
-    private static $host = "localhost:3307";
+    private static $host = "";
     private static $db = "movieworld_db";
-    private static $user = "root";
+    private static $user = "";
     private static $pass = "";
     private static $charset = "utf8mb4";
 
