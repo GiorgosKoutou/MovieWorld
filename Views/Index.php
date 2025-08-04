@@ -63,7 +63,6 @@ function displayMovies()
     $hiddenHateStyle = "";
     $buttonHateDisable = "";
 
-
     // Loop through each movie and display its details
     foreach ($movies as $movie) {
 
@@ -74,21 +73,32 @@ function displayMovies()
             $hiddenStyle = "display: none;";
         }
 
-        if ($cnt < count($votesArray)) {
+        /* TODO: Λογική ώστε να μπορέσω να πάρω το index του array από τα votings 
+                    και μέσω αυτού να μπορέσω να συγκρίνω αν η ταινία που έχει εκείνη την 
+                    στιγμή υπάρχει μες στον πίνακα votings κι αν υπάρχει να πράξω αναλόγως
+                    αν έχει like η hate*/
+        // if ($cnt < count(array_keys($votesArray))) {
 
-            $currentVote = $votesArray[$cnt];
+        //     $currentVote = $votesArray[$cnt];
+        //     // var_dump($currentVote);
 
-            if ($currentVote['movie_id'] == $movie->id && $currentVote['is_like'] == 1) {
+        //     if ($currentVote['movie_id'] == $movie->id && $currentVote['is_like'] == 1) {
 
-                $buttonLikeDisable = 'disabled';
-                $hiddenLikeStyle = 'background-color: lightgray;';
-            }
-            if ($currentVote['movie_id'] == $movie->id && $currentVote['is_hate'] == 1) {
+        //         var_dump($currentVote['movie_id']);
+        //         var_dump($currentVote['is_like']);
 
-                $buttonHateDisable = 'disabled';
-                $hiddenHateStyle = 'background-color: lightgray;';
-            }
-        }
+        //         $buttonLikeDisable = 'disabled';
+        //         $hiddenLikeStyle = 'background-color: lightgray;';
+        //     }
+        //     if ($currentVote['movie_id'] == $movie->id && $currentVote['is_hate'] == 1) {
+
+        //         var_dump($currentVote['movie_id']);
+        //         var_dump($currentVote['is_hate']);
+
+        //         $buttonHateDisable = 'disabled';
+        //         $hiddenHateStyle = 'background-color: lightgray;';
+        //     }
+        // }
 
         // Output the movie information using heredoc syntax
         echo <<<HTML
