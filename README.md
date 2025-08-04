@@ -39,12 +39,12 @@
 
 ## Project Structure (High-level Overview)
 
-/Controllers - Handles user requests and application flow
-/Services - Business logic (e.g., voting system)
-/Database - Database interaction layer
-/Database_Schema - MySQL script to set up the database
-/Views - Frontend pages (HTML)
-/Styles - Custom CSS for UI styling
+/Controllers - Handles user requests and application flow   
+/Services - Business logic (e.g., voting system)   
+/Database - Database interaction layer   
+/Database_Schema - MySQL script to set up the database   
+/Views - Frontend pages (HTML)   
+/Styles - Custom CSS for UI styling   
 
 
 ---
