@@ -17,6 +17,7 @@ class MovieService
    {
 
       $this->connection = DbConnection::connect();
+
    }
 
    /*********** CRUD OPERATIONS ***********/
@@ -32,13 +33,13 @@ class MovieService
     * @return void
     */
 
-   public function getMovies()
+   public function getMoviesData()
    {
       // Get the user name from POST data if available, otherwise set to null
       $userName = $_POST['user_name'] ?? null;
 
       // Initialize the 'movies' session variable if not already set
-      $_SESSION['movies'] ?? [];
+      // $_SESSION['movies'] ?? [];
 
       // If a user name is provided, fetch movies for that user only
       if ($userName !== null) {
@@ -51,9 +52,9 @@ class MovieService
          $stm->execute(['userName' => $userName]);
 
          // Fetch all movies as Movie objects for the user
-         $moviesByUser = $stm->fetchAll($this->connection::FETCH_CLASS, Movie::class);
+         $moviesByUser = $stm->fetchAll($this->connection::FETCH_ASSOC);
 
-         // Store the result in the session
+         // Store the movies in the session
          $_SESSION['movies'] = $moviesByUser;
 
          return;
@@ -65,10 +66,11 @@ class MovieService
       $stm->execute();
 
       // Fetch all movies as Movie objects
-      $movies = $stm->fetchAll($this->connection::FETCH_CLASS, Movie::class);
+      $allMovies = $stm->fetchAll($this->connection::FETCH_ASSOC);
 
-      // Store the result in the session
-      $_SESSION['movies'] = $movies;
+      // Store the movies in the session
+      $_SESSION['movies'] = $allMovies;
+
    }
 
    //endregion
@@ -221,11 +223,9 @@ class MovieService
     */
    public function sortMovies()
    {
+
       // Get the sort parameter from POST data if available, otherwise set to null
       $sortParam = $_POST['sort'] ?? null;
-
-      // Initialize the 'movies' session variable if not already set
-      $_SESSION['movies'] ?? [];
 
       // If a sort parameter is provided
       if (isset($sortParam)) {
@@ -239,8 +239,11 @@ class MovieService
          // Execute the statement
          $stm->execute();
 
-         // Fetch all movies as Movie objects and store them in the session
-         $_SESSION['movies'] = $stm->fetchAll($this->connection::FETCH_CLASS, Movie::class);
+         // Fetch all movies as Movie objects and store them in the array
+         $sortedMovies = $stm->fetchAll($this->connection::FETCH_ASSOC);
+
+         // Store the sorted movies in the session
+         $_SESSION['movies'] = $sortedMovies;
       }
    }
 
