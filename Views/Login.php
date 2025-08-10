@@ -1,6 +1,7 @@
 <?php 
 session_start();
-session_destroy();
+echo $_SESSION["error_message"] ?? '';
+unset($_SESSION["error_message"]);
 ?>
 
 <!DOCTYPE html>

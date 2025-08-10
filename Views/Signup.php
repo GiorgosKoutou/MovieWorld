@@ -1,3 +1,10 @@
+<?php 
+session_start();
+echo $_SESSION["error_message"] ?? '';
+unset($_SESSION["error_message"]);
+?>
+
+
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -31,7 +38,7 @@
                 <input type="password" name="password" autocomplete="off" required>
             </div>
 
-            <a href="../Views/Index.php"><button type="submit">Sign Up</button></a>
+            <button type="submit">Sign Up</button></a>
         </form>
     </div>
 
