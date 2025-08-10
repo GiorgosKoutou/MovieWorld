@@ -30,16 +30,18 @@ a {
 .header .UserHeader {
 
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: baseline;
+    width: 35%;
 }
 
 .header .UserHeader p {
 
-    width: 200px;
+    width: 180%;
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: baseline;
     font-weight: 600;
 
@@ -257,10 +259,12 @@ button {
 
 /* End Of Main Body Style */
 
+
 /* Start of Main Body's Right Section Style*/
 
 .rightSection {
     width: 20%;
+    height: 500px;
     padding: 0px 5px 0px 5px;
     margin-left: 5px;
     display: flex;
@@ -300,8 +304,8 @@ button {
     border: 3px solid black;
     border-radius: 10px;
     width: 100%;
+    height: 385px;
     padding: 0px 5px 0px 5px;
-    height: 300px;
     display: flex;
     flex-direction: column;
 }
