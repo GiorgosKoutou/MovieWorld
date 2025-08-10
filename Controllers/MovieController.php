@@ -21,15 +21,15 @@ class MovieController
     /**
      * Retrieves a list of movies using the service layer and redirects to the TestView page.
      *
-     * This method calls the getMovies() function from the service to fetch movie data,
+     * This method calls the getMoviesData() function from the service to fetch movie data,
      * then redirects the user to the TestView.php page. The script execution is terminated
      * after the redirect.
      *
      * @return void
      */
-    public function getMovies()
+    public function getMoviesData()
     {
-        $this->service->getMovies();
+        $this->service->getMoviesData();
         header("Location: ../Views/Index.php");
         exit;
     }
@@ -86,7 +86,14 @@ class MovieController
     public function sortMovies()
     {
         $this->service->sortMovies();
-        header("Location: ../../Views/index.php");
+
+        if(isset($_SESSION['user'])){
+
+            header("Location: ../../Views/index.php");
+            exit;
+        }
+        
+        header("Location: ../Views/index.php");
         exit;   
     }
 
