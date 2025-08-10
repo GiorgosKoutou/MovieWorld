@@ -8,9 +8,9 @@ use PDOException;
 class DbConnection
 {
 
-    private static $host = "";
+    private static $host = "localhost:3306";
     private static $db = "movieworld_db";
-    private static $user = "";
+    private static $user = "root";
     private static $pass = "";
     private static $charset = "utf8mb4";
 
@@ -45,7 +45,7 @@ class DbConnection
         } catch (PDOException $e) {
 
             // Output an error message if the connection fails
-            echo "Connection Fail" . $e->getMessage();
+            $_SESSION['connectionError'] = "Connection Fail";
         }
 
         // Return null if the connection could not be established
