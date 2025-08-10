@@ -8,28 +8,12 @@ use Services\MovieService;
 
 session_start();
 
-//region SetMovies
-
-/**
- * Checks if the "movies" data is set in the session.
- * If not, it creates an instance of MovieService and fetches movies.
- *
- * This function ensures that the movies are available in the session
- * for later use, reducing redundant database or API calls.
- */
-function setMovies()
-{
-
-    // If movies are not set in the session, fetch them using the MovieService
-    if (!isset($_SESSION["movies"])) {
-        $service = new MovieService();
-        $service->getMovies();
-    }
+if(isset($_SESSION['connectionError'])) {
+    echo "<script>alert('Connection Error: " . $_SESSION['connectionError'] . "');</script>";
+    unset($_SESSION['connectionError']);
 }
-//endregion
 
 //region DisplayMovies
-
 /**
  * Displays a list of movies with their details, including title, publication date,
  * description, likes, hates, and the username of the poster. Also provides forms
@@ -41,16 +25,12 @@ function setMovies()
  */
 function displayMovies()
 {
-    setMovies();
-
-    $cnt = 0;
 
     $service = new MovieService();
-    $votes = $service->getUserVotings();
-    $votesArray = array_values($votes);
 
-    // Retrieve movies from the session, or use an empty array if not set
-    $movies = $_SESSION["movies"] ?? [];
+    if(!isset($_SESSION['movies']))
+         $service->getMoviesData();
+
 
     // Get the current logged-in user's name from the session, or set to empty string if not set
     $userName = $_SESSION["user"] ?? [];
@@ -64,67 +44,54 @@ function displayMovies()
     $buttonHateDisable = "";
 
     // Loop through each movie and display its details
-    foreach ($movies as $movie) {
+    foreach ($_SESSION['movies'] as $movie) {
 
 
-
-        if ($userName === $movie->user_name) {
-            $movie->user_name = "You" ?? '';
+        if ($userName === $movie['user_name']) {
+            $movie['user_name'] = "You" ?? '';
             $hiddenStyle = "display: none;";
         }
 
-        /* TODO: Λογική ώστε να μπορέσω να πάρω το index του array από τα votings 
-                    και μέσω αυτού να μπορέσω να συγκρίνω αν η ταινία που έχει εκείνη την 
-                    στιγμή υπάρχει μες στον πίνακα votings κι αν υπάρχει να πράξω αναλόγως
-                    αν έχει like η hate*/
-        // if ($cnt < count(array_keys($votesArray))) {
+        // Check if the user has already liked or hated the movie
+        $isLike = $service->checkVotes($movie['id']);
 
-        //     $currentVote = $votesArray[$cnt];
-        //     // var_dump($currentVote);
+        if ($isLike === true) {
 
-        //     if ($currentVote['movie_id'] == $movie->id && $currentVote['is_like'] == 1) {
+            $buttonLikeDisable = 'disabled';
+            $hiddenLikeStyle = 'background-color: lightgray;';
+        }
 
-        //         var_dump($currentVote['movie_id']);
-        //         var_dump($currentVote['is_like']);
+        if ($isLike === false) {
 
-        //         $buttonLikeDisable = 'disabled';
-        //         $hiddenLikeStyle = 'background-color: lightgray;';
-        //     }
-        //     if ($currentVote['movie_id'] == $movie->id && $currentVote['is_hate'] == 1) {
-
-        //         var_dump($currentVote['movie_id']);
-        //         var_dump($currentVote['is_hate']);
-
-        //         $buttonHateDisable = 'disabled';
-        //         $hiddenHateStyle = 'background-color: lightgray;';
-        //     }
-        // }
+            $buttonHateDisable = 'disabled';
+            $hiddenHateStyle = 'background-color: lightgray;';
+        }
 
         // Output the movie information using heredoc syntax
         echo <<<HTML
             <div class="movieInfo">
                 <div class="topSection">
-                    <h1>$movie->title</h1>
-                    <p>Posted: $movie->publication_date</p>
+                    <h1>{$movie['title']}</h1>
+                    <p>Posted: {$movie['publication_date']}</p>
                 </div>
 
                 <div class="middleSection">
-                    <p>$movie->description</p>
+                    <p>{$movie['description']}</p>
                 </div>
 
                 <div class="bottomSection">
 
                     <div class="votes">
-                        <p>$movie->likes</p>
+                        <p>{$movie['likes']}</p>
                         <p id="seperator">|</p>
-                        <p>$movie->hates</p>
+                        <p>{$movie['hates']}</p>
                     </div>
 
                     <div class="buttons">
                         <!-- Like button form -->
                         <form method="POST" action="../Controllers/MovieController.php?action=addVote">
                             <input type="hidden" name="vote" value="like">
-                            <input type="hidden" name="movieId" value="{$movie->id}">
+                            <input type="hidden" name="movieId" value="{$movie['id']}">
                             <button type="submit" $buttonLikeDisable style="$hiddenStyle $hiddenLikeStyle">Like</button>
                         </form>
                         <p id="seperator" style="$hiddenStyle">|</p>
@@ -132,16 +99,16 @@ function displayMovies()
                         <!-- Hate button form -->
                         <form method="POST" action="../Controllers/MovieController.php?action=addVote">
                             <input type="hidden" name="vote" value="hate">
-                            <input type="hidden" name="movieId" value="{$movie->id}">
+                            <input type="hidden" name="movieId" value="{$movie['id']}">
                             <button type="submit" $buttonHateDisable style="$hiddenStyle $hiddenHateStyle">Hate</button>
                         </form>
                     </div>
 
                     <div class="username">
                         <p>Posted By: </p>
-                        <form method="POST" action="../Controllers/MovieController.php?action=getMovies">
-                            <input type="hidden" name="user_name" value="{$movie->user_name}">
-                            <button type="submit">$movie->user_name</button>
+                        <form method="POST" action="../Controllers/MovieController.php?action=getMoviesData">
+                            <input type="hidden" name="user_name" value="{$movie['user_name']}">
+                            <button type="submit">{$movie['user_name']}</button>
                         </form>
                     </div>
                 </div>
@@ -154,7 +121,9 @@ function displayMovies()
         $hiddenHateStyle = "";
         $buttonHateDisable = "";
 
-        $cnt++;
+        $hiddenStyle = "";
+
+        $isLike = null;
     }
 }
 
@@ -185,7 +154,9 @@ function displayHeader()
 
             <!-- Start of Logout Button -->
             <div class="Logout">
-                    <a href="Login.php"><button>Logout</button></a>
+                <form method="POST" action="../Controllers/UserController.php?action=logout">
+                    <button type="submit">Logout</button>
+                </form>
             </div>
             <!-- End of Logout Button-->
         </div>
@@ -215,11 +186,12 @@ function displayHeader()
  */
 function displayTotalMovies()
 {
-
-    setMovies();
+    if(!isset($_SESSION['movies'])) {
+        $service = new MovieService();
+        $service->getMoviesData();
+    }
 
     $movies = $_SESSION['movies'] ?? [];
-
     $totalMovies = count($movies);
 
     echo <<<HTML
@@ -308,7 +280,9 @@ function displayMainBodyRightSection()
 
             <!-- Start of All Movies Section -->
             <div class="AllMovies">
-                <a href="Index.php"><button>All Movies</button></a>
+                <form method="POST" action="../Controllers/MovieController.php?action=getMoviesData">
+                    <button type="submit">All Movies</button>
+                </form>
             </div>
             <!-- End of All Movies Section -->
 
@@ -332,7 +306,7 @@ function displayMainBodyRightSection()
                 <div class="likes">
                     <div class="row">
                         <p id="filterRow">Likes</p>
-                        <form method="POST" action="../Controllers//MovieController.php?action=sortMovies">
+                        <form method="POST" action="../Controllers/MovieController.php?action=sortMovies">
                             <input type="hidden" name="sort" value="likes">
                             <button type="submit"></button>
                         </form>
@@ -345,7 +319,7 @@ function displayMainBodyRightSection()
                 <div class="hates">
                     <div class="row">
                         <p id="filterRow">Hates</p>
-                        <form method="POST" action="../Controllers//MovieController.php?action=sortMovies">
+                        <form method="POST" action="../Controllers/MovieController.php?action=sortMovies">
                             <input type="hidden" name="sort" value="hates">
                             <button type="submit"></button>
                         </form>
@@ -358,7 +332,7 @@ function displayMainBodyRightSection()
                 <div class="dates">
                     <div class="row">
                         <p id="filterRow">Dates</p>
-                        <form method="POST" action="../Controllers//MovieController.php?action=sortMovies">
+                        <form method="POST" action="../Controllers/MovieController.php?action=sortMovies">
                             <input type="hidden" name="sort" value="publication_date">
                             <button type="submit"></button>
                         </form>
