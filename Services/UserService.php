@@ -13,8 +13,8 @@ class UserService
 
     private $connection;
 
-    public $exists = true;
-    public $passwordVerified = true;
+    private $exists = true;
+    private $passwordVerified = true;
 
     public function __construct()
     {
@@ -34,7 +34,9 @@ class UserService
      */
     public function createUser()
     {
-        // Store the username in the session
+        $_SESSION = ['error_message'];
+
+        // Store the user's username in the session
         $_SESSION['user'] = $_POST['username'] ?? [];
 
         // Get all POST data
@@ -43,6 +45,7 @@ class UserService
         // Check if the username already exists in the database
         if($this->isUsernameExists($data['username'])){
             $this->exists = true;
+            $_SESSION['error_message'] = "Username Exists";
             return;
         }
             
@@ -60,6 +63,61 @@ class UserService
         $stm->execute($data);
     }
 
+    //endregion
+
+    //region UserLogin
+
+    /**
+     * Handles user login by verifying the provided username and password.
+     *
+     * Retrieves the username and password from the POST request, checks if the user exists in the database,
+     * and verifies the password using password hashing. If authentication is successful, stores the username
+     * in the session. Outputs error messages for invalid username or password.
+     *
+     * @return void
+     */
+    public function userLogin()
+    {
+        $_SESSION = ['error_message'];
+
+        // Retrieve username and password from POST request
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+
+        // Store the user's username in the session
+        $_SESSION['user'] = $username;
+
+        // Verify if the username exists in the database
+        if (!$this->isUsernameExists($username)){
+            $this->exists = false;
+            $_SESSION["error_message"] = "Wrong Username";
+            return;
+        }
+        // Check if the provided password matches the stored hash
+        if (!$this->isPasswordVerified($username, $password)) {
+            $this->passwordVerified = false;
+            $_SESSION["error_message"] = "Wrong Password";
+            return;
+        }
+    }
+
+    //endregion
+
+    //region Logout
+    /**
+     * Logs out the user by unsetting the user session variable.
+     *
+     * This method is called when the user clicks the logout button,
+     * effectively ending the user's session.
+     *
+     * @return void
+     */
+
+    public function logout(){
+
+        unset($_SESSION['user']); // Remove the user from the session
+        unset($_SESSION['service']); // Remove the service from the session
+    }
     //endregion
 
     //region UsernameExists
@@ -123,38 +181,21 @@ class UserService
 
     //endregion
 
-    //region UserLogin
-
+    //region Getters
     /**
-     * Handles user login by verifying the provided username and password.
-     *
-     * Retrieves the username and password from the POST request, checks if the user exists in the database,
-     * and verifies the password using password hashing. If authentication is successful, stores the username
-     * in the session. Outputs error messages for invalid username or password.
-     *
-     * @return void
-     */
-    public function userLogin()
+     * Get the value of exists
+     */ 
+    public function getExists()
     {
-
-        // Retrieve username and password from POST request
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-
-        // Store the username in the session
-        $_SESSION['user'] = $username; 
-
-        // Verify if the username exists in the database
-        if (!$this->isUsernameExists($username)){
-            $this->exists = false;
-            return;
-        }
-        // Check if the provided password matches the stored hash
-        if (!$this->isPasswordVerified($username, $password)) {
-            $this->passwordVerified = false;
-            return;
-        }
+        return $this->exists;
     }
 
+    /**
+     * Get the value of passwordVerified
+     */ 
+    public function getPasswordVerified()
+    {
+        return $this->passwordVerified;
+    }
     //endregion
 }

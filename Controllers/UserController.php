@@ -28,10 +28,9 @@ class UserController
     {
         $this->service->createUser();
 
-        if ($this->service->exists){
-
-            $_SESSION['error_message'] = "Username Exists";
-            header("Location: ../../Views/Signup.php");
+        if ($this->service->getExists()) {
+            
+            header("Location: ../Views/Signup.php");
             exit;
         }
             
@@ -58,15 +57,15 @@ class UserController
         $this->service->userLogin();
 
         // If the username does not exist, set an error message and redirect to the login page
-        if (!$this->service->exists) {
-            $_SESSION["error_message"] = "Wrong Username";
+        if (!$this->service->getExists()) {
+
             header("Location: ../Views/Login.php");
             exit;
         }
 
         // If the password is incorrect, set an error message and redirect to the login page
-        if (!$this->service->passwordVerified){
-            $_SESSION["error_message"] = "Wrong Password";
+        if (!$this->service->getPasswordVerified()){
+
             header("Location: ../Views/Login.php");
             exit;
         }
@@ -76,6 +75,26 @@ class UserController
         exit;
     }
 
+    //endregion
+
+    //region UserLogout
+    /**
+     * Handles the user logout process.
+     *
+     * Calls the logout method from the service layer to log out the user,
+     * then redirects to the login page.
+     *
+     * @return void
+     */
+    public function logout()
+    {
+        // Call the logout method from the service layer
+        $this->service->logout();
+
+        // Redirect to the login page after logging out
+        header("Location: ../Views/Index.php");
+        exit;
+    }   
     //endregion
 }
 
