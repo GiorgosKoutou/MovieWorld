@@ -249,16 +249,51 @@ class MovieService
 
    //endregion
 
-   //region GetUserVotings
-   public function getUserVotings(){
 
-      $userName = $_SESSION['user'] ?? null;
+//region CheckVotes
+/**
+ * Checks if the current user has voted on a specific movie.
+ *
+ * This function retrieves the user's votes from the session and checks if they have
+ * liked or hated the specified movie. Returns true if the user has liked the movie,
+ * false if they have hated it, or null if they haven't voted.
+ *
+ * @param int $movieId The ID of the movie to check votes for.
+ * @return bool|null Returns true if liked, false if hated, or null if no vote found.
+ */
+public function checkVotes($movieId){
 
-      $query = 'SELECT movie_id, is_like, is_hate FROM votings WHERE user_name = :username';
-      $stm = $this->connection->prepare( $query) ;
-      $stm->execute(['username'=> $userName]);
+    $votes = $this->getUserVotings();
+
+    foreach ($votes as $vote) {
+        if ($vote['movie_id'] == $movieId && $vote['is_like'] == 1) 
+            return true;
+
+        if ($vote['movie_id'] == $movieId && $vote['is_hate'] == 1) 
+            return false;
+    }
+}
+//endregion
+
+//region GetUserVotings
+/**
+ * Retrieves the voting records of the current user from the database.
+ *
+ * This function fetches all voting records for the user stored in the session.
+ * It returns an array of voting records, each containing movie ID, like status, and hate status.
+ *
+ * @return array Returns an array of voting records for the user.
+ */
+private function getUserVotings(){
+
+   $userName = $_SESSION['user'] ?? null;
+
+   $query = 'SELECT movie_id, is_like, is_hate FROM votings WHERE user_name = :username';
+   $stm = $this->connection->prepare( $query) ;
+   $stm->execute(['username'=> $userName]);
 
       return $stm->fetchAll();
-   }
-   //endregion
+}
+//endregion
+
 }
