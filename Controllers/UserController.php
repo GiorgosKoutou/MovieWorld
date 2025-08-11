@@ -35,7 +35,7 @@ class UserController
         }
             
 
-        header("Location: ../../Views/Index.php");
+        header("Location: ../Views/Index.php");
         exit;
     }
 
