@@ -3,18 +3,17 @@
 namespace Model;
 
 require_once("../Database/DbConnection.php");
-require_once("../Database/Models/User.php");
 
 use Database\DbConnection;
-use Database\Models\User;
+
 
 class UserService
 {
 
     private $connection;
 
-    private $exists = true;
-    private $passwordVerified = true;
+    private $exists = false;
+    private $passwordVerified = false;
 
     public function __construct()
     {
@@ -84,21 +83,23 @@ class UserService
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        // Store the user's username in the session
-        $_SESSION['user'] = $username;
-
         // Verify if the username exists in the database
         if (!$this->isUsernameExists($username)){
-            $this->exists = false;
             $_SESSION["error_message"] = "Wrong Username";
             return;
         }
         // Check if the provided password matches the stored hash
         if (!$this->isPasswordVerified($username, $password)) {
-            $this->passwordVerified = false;
             $_SESSION["error_message"] = "Wrong Password";
             return;
         }
+
+        // Store the user's username in the session
+        $_SESSION['user'] = $username;
+
+        // Set flags indicating the user exists and the password is verified
+        $this->exists = true;
+        $this->passwordVerified = true;
     }
 
     //endregion
@@ -116,7 +117,7 @@ class UserService
     public function logout(){
 
         unset($_SESSION['user']); // Remove the user from the session
-        unset($_SESSION['service']); // Remove the service from the session
+        session_destroy(); // Destroy the entire session
     }
     //endregion
 
