@@ -9,8 +9,15 @@ use Services\MovieService;
 session_start();
 
 if(isset($_SESSION['connectionError'])) {
-    echo "<script>alert('Connection Error: " . $_SESSION['connectionError'] . "');</script>";
+
+    echo $_SESSION['connectionError'];
     unset($_SESSION['connectionError']);
+}
+
+if (isset($_SESSION['empty_data'])) {
+    
+    echo $_SESSION['empty_data'];
+    unset($_SESSION['empty_data']);
 }
 
 //region DisplayMovies
@@ -150,7 +157,7 @@ function displayHeader()
         // Display a welcome message with the username and a logout button
         echo <<<HTML
         <div class="UserHeader">
-            <p><span id="welcomeSpan">Welcome Back</span><span id="usernameSpan">$userName</span></p>
+            <p><span id="welcomeSpan">Welcome Back: </span><span id="usernameSpan">$userName</span></p>
 
             <!-- Start of Logout Button -->
             <div class="Logout">
