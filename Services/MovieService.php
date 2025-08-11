@@ -35,11 +35,14 @@ class MovieService
 
    public function getMoviesData()
    {
+      // Initialize the session variable to store movies
+      $_SESSION['empty_data'] = [];
+
+      // Error message for no movies found
+      $errorMessage = "No movies found";
+
       // Get the user name from POST data if available, otherwise set to null
       $userName = $_POST['user_name'] ?? null;
-
-      // Initialize the 'movies' session variable if not already set
-      // $_SESSION['movies'] ?? [];
 
       // If a user name is provided, fetch movies for that user only
       if ($userName !== null) {
@@ -67,6 +70,12 @@ class MovieService
 
       // Fetch all movies as Movie objects
       $allMovies = $stm->fetchAll($this->connection::FETCH_ASSOC);
+
+      if(empty($allMovies)) {
+         // If no movies are found, store the error message in the session
+         $_SESSION['empty_data'] = $errorMessage;
+         return;
+      }
 
       // Store the movies in the session
       $_SESSION['movies'] = $allMovies;
