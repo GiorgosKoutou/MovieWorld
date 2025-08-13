@@ -8,6 +8,9 @@ use Services\MovieService;
 
 session_start();
 
+//region Error Messages
+
+// Check for any session messages and display them if they exist
 if(isset($_SESSION['connectionError'])) {
 
     echo $_SESSION['connectionError'];
@@ -19,8 +22,10 @@ if (isset($_SESSION['empty_data'])) {
     echo $_SESSION['empty_data'];
     unset($_SESSION['empty_data']);
 }
+//endregion
 
 //region DisplayMovies
+
 /**
  * Displays a list of movies with their details, including title, publication date,
  * description, likes, hates, and the username of the poster. Also provides forms
@@ -40,9 +45,9 @@ function displayMovies()
 
 
     // Get the current logged-in user's name from the session, or set to empty string if not set
-    $userName = $_SESSION["user"] ?? [];
+    $username = $_SESSION["user"] ?? null;
 
-    $hiddenStyle = (empty($userName)) ? "display: none;" : "";
+    $hiddenStyle = (!isset($_SESSION['user'])) ? "display: none;" : "";
 
     $hiddenLikeStyle = "";
     $buttonLikeDisable = "";
@@ -53,9 +58,11 @@ function displayMovies()
     // Loop through each movie and display its details
     foreach ($_SESSION['movies'] as $movie) {
 
+        $displayUserName = $movie['user_name'] ?? '';
 
-        if ($userName === $movie['user_name']) {
-            $movie['user_name'] = "You" ?? '';
+
+        if ($username === $movie['user_name']) {
+            $displayUserName = "You" ?? '';
             $hiddenStyle = "display: none;";
         }
 
@@ -110,12 +117,12 @@ function displayMovies()
                             <button type="submit" $buttonHateDisable style="$hiddenStyle $hiddenHateStyle">Hate</button>
                         </form>
                     </div>
-
+                    <!-- Filter button form -->
                     <div class="username">
                         <p>Posted By: </p>
                         <form method="POST" action="../Controllers/MovieController.php?action=getMoviesData">
                             <input type="hidden" name="user_name" value="{$movie['user_name']}">
-                            <button type="submit">{$movie['user_name']}</button>
+                            <button type="submit">{$displayUserName}</button>
                         </form>
                     </div>
                 </div>
@@ -127,8 +134,6 @@ function displayMovies()
 
         $hiddenHateStyle = "";
         $buttonHateDisable = "";
-
-        $hiddenStyle = "";
 
         $isLike = null;
     }
@@ -414,4 +419,4 @@ function displayMainBodyRightSection()
 
 </html>
 
-<?php unset($_SESSION['movies']); ?>
+<!-- <?php unset($_SESSION['movies']); ?> -->
