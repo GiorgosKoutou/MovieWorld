@@ -28,8 +28,9 @@ class UserController
     {
         $this->service->createUser();
 
-        if ($this->service->getExists()) {
+        if ($this->service->getExists() || !$this->service->getPasswordValid()) {
             
+            unset($_SESSION['user']);
             header("Location: ../Views/Signup.php");
             exit;
         }

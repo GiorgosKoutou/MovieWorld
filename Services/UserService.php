@@ -14,6 +14,7 @@ class UserService
 
     private $exists = false;
     private $passwordVerified = false;
+    private $passwordValid = false;
 
     public function __construct()
     {
@@ -33,10 +34,9 @@ class UserService
      */
     public function createUser()
     {
-        $_SESSION = ['error_message'];
 
         // Store the user's username in the session
-        $_SESSION['user'] = $_POST['username'] ?? [];
+        $_SESSION['user'] = $_POST['username'] ?? null;
 
         // Get all POST data
         $data = $_POST;
@@ -47,6 +47,10 @@ class UserService
             $_SESSION['error_message'] = "Username Exists";
             return;
         }
+        
+        if($this->isPasswordValid($data['password'])){
+
+        $this->passwordValid = true;
             
         // Hash the user's password before storing
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
@@ -60,6 +64,7 @@ class UserService
 
         // Execute the statement with the user data
         $stm->execute($data);
+        }
     }
 
     //endregion
@@ -77,7 +82,6 @@ class UserService
      */
     public function userLogin()
     {
-        $_SESSION = ['error_message'];
 
         // Retrieve username and password from POST request
         $username = $_POST['username'];
@@ -105,6 +109,7 @@ class UserService
     //endregion
 
     //region Logout
+
     /**
      * Logs out the user by unsetting the user session variable.
      *
@@ -182,7 +187,45 @@ class UserService
 
     //endregion
 
+    //region PasswordValidation
+
+    /**
+     * Validates the provided password against a set of criteria.
+     *
+     * The password must contain at least one uppercase letter, one lowercase letter,
+     * one number, one special character, and be at least 8 characters long.
+     *
+     * @param string $password The password to validate.
+     * @return bool Returns true if the password is valid, false otherwise.
+     */
+    private function isPasswordValid($password){
+
+        // Define a regex pattern for password validation
+        $passwordPattern = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/";
+
+        // Check if the password matches the pattern
+        if (!preg_match($passwordPattern, $password)) {
+            if (!preg_match('/[A-Z]/', $password))
+                $_SESSION['error_message'] = "Password must contain at least one uppercase letter. <br>";
+            if (!preg_match('/[a-z]/', $password))
+                $_SESSION['error_message'] .= "Password must contain at least one lowercase letter. <br>";
+            if (!preg_match('/\d/', $password))
+                $_SESSION['error_message'] .= "Password must contain at least one number. <br>";
+            if (!preg_match('/[@$!%*?&]/', $password))
+                $_SESSION['error_message'] .= "Password must contain at least one special character. <br>";
+            if (strlen($password) < 8)
+                $_SESSION['error_message'] .= "Password must be at least 8 characters long. <br>";
+
+            return false; // Password is Invalid
+
+        } else {
+            return true; // Password is Valid
+        }
+    }
+    //endregion 
+
     //region Getters
+
     /**
      * Get the value of exists
      */ 
@@ -198,5 +241,15 @@ class UserService
     {
         return $this->passwordVerified;
     }
+
+    /**
+     * Get the value of passwordValid
+     */ 
+    public function getPasswordValid()
+    {
+        return $this->passwordValid;
+    }
+
     //endregion
+
 }
