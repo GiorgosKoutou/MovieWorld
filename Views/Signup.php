@@ -1,7 +1,14 @@
 <?php 
 session_start();
-echo $_SESSION["error_message"] ?? '';
-unset($_SESSION["error_message"]);
+
+if(isset($_SESSION["error_message"])) {
+
+    // Display the error message if it exists
+    echo $_SESSION["error_message"] ?? '';
+    unset($_SESSION["error_message"]);
+}
+
+
 ?>
 
 
