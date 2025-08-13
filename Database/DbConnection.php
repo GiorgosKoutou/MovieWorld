@@ -47,9 +47,6 @@ class DbConnection
             // Output an error message if the connection fails
             $_SESSION['connectionError'] = "Connection Fail";
         }
-
-        // Return null if the connection could not be established
-        return null;
     }
 
     //endregion
