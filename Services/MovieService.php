@@ -35,24 +35,23 @@ class MovieService
 
    public function getMoviesData()
    {
-      // Initialize the session variable to store movies
-      $_SESSION['empty_data'] = [];
 
-      // Error message for no movies found
-      $errorMessage = "No movies found";
+      unset($_SESSION['movies']);
 
       // Get the user name from POST data if available, otherwise set to null
-      $userName = $_POST['user_name'] ?? null;
+      $username = $_POST['user_name'] ?? null;
 
       // If a user name is provided, fetch movies for that user only
-      if ($userName !== null) {
+      if ($username !== null) {
+
+         $_SESSION['usernameFilter'] = $username;
 
          // Prepare SQL query to select movies by user name
          $query = "SELECT * FROM movies WHERE user_name = :userName";
          $stm = $this->connection->prepare($query);
 
          // Execute the query with the provided user name
-         $stm->execute(['userName' => $userName]);
+         $stm->execute(['userName' => $username]);
 
          // Fetch all movies as Movie objects for the user
          $moviesByUser = $stm->fetchAll($this->connection::FETCH_ASSOC);
@@ -68,17 +67,22 @@ class MovieService
       $stm = $this->connection->prepare($query);
       $stm->execute();
 
-      // Fetch all movies as Movie objects
+      // Fetch all movies as Movie Associative array
       $allMovies = $stm->fetchAll($this->connection::FETCH_ASSOC);
 
       if(empty($allMovies)) {
+
          // If no movies are found, store the error message in the session
-         $_SESSION['empty_data'] = $errorMessage;
+         $_SESSION['empty_data'] = "No movies found";
          return;
+
       }
 
       // Store the movies in the session
       $_SESSION['movies'] = $allMovies;
+
+      // Unset the username filter session variable if it exists
+      unset($_SESSION['usernameFilter']);
 
    }
 
@@ -226,9 +230,11 @@ class MovieService
    //region SortMovies
 
    /**
-    * Retrieves all movies from the database, sorted by @param sortParam in descending order.
+    * Sorts movies based on the specified sort parameter.
+    * If a user name filter is set in the session, it sorts movies for that user only.
+    * Otherwise, it sorts all movies.
     *
-    * @return Movie[] Array of Movie objects sorted by publication date.
+    * @return void
     */
    public function sortMovies()
    {
@@ -237,9 +243,27 @@ class MovieService
       $sortParam = $_POST['sort'] ?? null;
 
       // If a sort parameter is provided
-      if (isset($sortParam)) {
+      if (isset($_SESSION['usernameFilter']) && !empty($_SESSION['usernameFilter'])) {
 
          // Prepare SQL query to select all movies ordered by the specified sort parameter in descending order
+         $query = "SELECT * FROM movies WHERE user_name = :username ORDER BY $sortParam DESC";
+
+         // Prepare the statement for execution
+         $stm = $this->connection->prepare($query);
+
+         // Execute the statement
+         $stm->execute(['username' => $_SESSION['usernameFilter']]);
+
+         // Fetch all movies by a specific user as Movie Associative array
+         $sortedMoviesByUser = $stm->fetchAll($this->connection::FETCH_ASSOC);
+
+         // Store the sorted movies in the session
+         $_SESSION['movies'] = $sortedMoviesByUser;
+
+         return;
+      }
+
+      // Prepare SQL query to select all movies ordered by the specified sort parameter in descending order
          $query = "SELECT * FROM movies ORDER BY $sortParam DESC";
 
          // Prepare the statement for execution
@@ -248,61 +272,61 @@ class MovieService
          // Execute the statement
          $stm->execute();
 
-         // Fetch all movies as Movie objects and store them in the array
+         // Fetch all movies as Associative array
          $sortedMovies = $stm->fetchAll($this->connection::FETCH_ASSOC);
 
          // Store the sorted movies in the session
          $_SESSION['movies'] = $sortedMovies;
-      }
+
    }
 
    //endregion
 
+   //region CheckVotes
 
-//region CheckVotes
-/**
- * Checks if the current user has voted on a specific movie.
- *
- * This function retrieves the user's votes from the session and checks if they have
- * liked or hated the specified movie. Returns true if the user has liked the movie,
- * false if they have hated it, or null if they haven't voted.
- *
- * @param int $movieId The ID of the movie to check votes for.
- * @return bool|null Returns true if liked, false if hated, or null if no vote found.
- */
-public function checkVotes($movieId){
+   /**
+    * Checks if the current user has voted on a specific movie.
+    *
+    * This function retrieves the user's votes from the session and checks if they have
+    * liked or hated the specified movie. Returns true if the user has liked the movie,
+    * false if they have hated it, or null if they haven't voted.
+    *
+    * @param int $movieId The ID of the movie to check votes for.
+    * @return bool Returns true if liked, false if hated, or null if no vote found.
+    */
+   public function checkVotes($movieId){
 
-    $votes = $this->getUserVotings();
+      $votes = $this->getUserVotings();
 
-    foreach ($votes as $vote) {
-        if ($vote['movie_id'] == $movieId && $vote['is_like'] == 1) 
-            return true;
+      foreach ($votes as $vote) {
+         if ($vote['movie_id'] === $movieId && $vote['is_like'] == true) 
+               return true;
 
-        if ($vote['movie_id'] == $movieId && $vote['is_hate'] == 1) 
-            return false;
-    }
-}
-//endregion
+            if ($vote['movie_id'] === $movieId && $vote['is_hate'] == true)
+               return false;
+      }
+   }
+   //endregion
 
-//region GetUserVotings
-/**
- * Retrieves the voting records of the current user from the database.
- *
- * This function fetches all voting records for the user stored in the session.
- * It returns an array of voting records, each containing movie ID, like status, and hate status.
- *
- * @return array Returns an array of voting records for the user.
- */
-private function getUserVotings(){
+   //region GetUserVotings
+   /**
+   * Retrieves the voting records of the current user from the database.
+   *
+   * This function fetches all voting records for the user stored in the session.
+   * It returns an array of voting records, each containing movie ID, like status, and hate status.
+   *
+   * @return array Returns an array of voting records for the user.
+   */
+   private function getUserVotings(){
 
-   $userName = $_SESSION['user'] ?? null;
+      $userName = $_SESSION['user'] ?? null;
 
-   $query = 'SELECT movie_id, is_like, is_hate FROM votings WHERE user_name = :username';
-   $stm = $this->connection->prepare( $query) ;
-   $stm->execute(['username'=> $userName]);
+      $query = 'SELECT movie_id, is_like, is_hate FROM votings WHERE user_name = :username';
+      $stm = $this->connection->prepare( $query) ;
+      $stm->execute(['username'=> $userName]);
 
-      return $stm->fetchAll();
-}
-//endregion
+         return $stm->fetchAll();
+   }
+   //endregion
 
 }
