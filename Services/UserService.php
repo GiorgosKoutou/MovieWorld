@@ -35,9 +35,6 @@ class UserService
     public function createUser()
     {
 
-        // Store the user's username in the session
-        $_SESSION['user'] = $_POST['username'] ?? null;
-
         // Get all POST data
         $data = $_POST;
 
@@ -64,6 +61,9 @@ class UserService
 
         // Execute the statement with the user data
         $stm->execute($data);
+
+        // Store the user's username in the session
+        $_SESSION['user'] = $_POST['username'] ?? null;
         }
     }
 
