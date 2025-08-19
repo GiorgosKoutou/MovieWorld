@@ -173,7 +173,7 @@ function displayHeader()
         // Display a welcome message with the username and a logout button
         echo <<<HTML
         <div class="UserHeader">
-            <p><span id="welcomeSpan">Welcome Back: </span><span id="usernameSpan">$userName</span></p>
+            <p><span id="welcomeSpan">Welcome: </span><span id="usernameSpan">$userName</span></p>
 
             <!-- Start of Logout Button -->
             <div class="Logout">
