@@ -11,6 +11,7 @@ class MovieService
 
    private $connection;
 
+
    public function __construct()
    {
 
@@ -36,11 +37,8 @@ class MovieService
       // Unset the 'movies' session variable to clear any previous movie data
       unset($_SESSION['movies']);
 
-      // Get the user name from POST data if available, otherwise set to an empty array
-      $_SESSION['usernameFilter'] = $_POST['user_name'] ?? [];
-
       // If a user name is provided, fetch movies for that user only
-      if (!empty($_SESSION['usernameFilter'])) {
+      if (isset($_SESSION['usernameFilter'])) {
 
          $username = $_SESSION['usernameFilter'];
 
@@ -93,15 +91,32 @@ class MovieService
 
    public function addMovie()
    {
+      // Check if the movie with the same title already exists in the database
+      $result = $this->findMovieByTitle($_POST['title']);
+
+      // If a movie with the same title already exists, set an error message in the session
+      if($result){
+
+         $_SESSION['movie_exists'] = "Movie with this title already exists";
+         return;
+      }
+
+
       // Prepare the SQL query to insert a new movie with initial likes and hates set to 0
-      $query = "INSERT INTO movies (title, description, user_name, publication_date, likes, hates)
+      $insertQuery = "INSERT INTO movies (title, description, user_name, publication_date, likes, hates)
                      VALUES (:title, :description, :userName, :publicationDate, 0, 0)";
 
       // Prepare the statement for execution
-      $stm = $this->connection->prepare($query);
+      $stm = $this->connection->prepare($insertQuery);
 
       // Execute the statement with data from the $_POST array
       $stm->execute($_POST);
+
+      // If the insertion is successful, fetch the last inserted movie ID
+      $movieId = $this->connection->lastInsertId();
+      $insertedMovie = $this->findMovieById($movieId);
+
+      $_SESSION['movies'] = [$insertedMovie];
    }
 
    //endregion
@@ -321,6 +336,48 @@ class MovieService
       $stm->execute(['username' => $userName]);
 
       return $stm->fetchAll();
+   }
+   //endregion
+
+   //region FindMovieByTitle
+
+   /**
+    * Finds a movie by its title in the database.
+    *
+    * This function prepares and executes a SQL query to find a movie with the specified title.
+    * It returns the movie data if found, or null if not found.
+    *
+    * @param string $title The title of the movie to search for.
+    * @return array|null Returns an associative array of movie data or null if not found.
+    */
+   private function findMovieByTitle($title)
+   {
+      $query = "SELECT * FROM movies WHERE title = :title";
+      $stm = $this->connection->prepare($query);
+      $stm->execute(['title' => $title]);
+
+      return $stm->fetch();
+   }
+   //endregion
+
+   //region FindMovieById
+
+   /**
+    * Finds a movie by its ID in the database.
+    *
+    * This function prepares and executes a SQL query to find a movie with the specified ID.
+    * It returns the movie data if found, or null if not found.
+    *
+    * @param int $id The ID of the movie to search for.
+    * @return array|null Returns an associative array of movie data or null if not found.
+    */
+   private function findMovieById($id)
+   {
+      $query = "SELECT * FROM movies WHERE id = :id";
+      $stm = $this->connection->prepare($query);
+      $stm->execute(['id' => $id]);
+
+      return $stm->fetch();
    }
    //endregion
 
