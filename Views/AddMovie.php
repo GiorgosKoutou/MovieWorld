@@ -27,7 +27,7 @@
             </div>
 
             <div class="name">
-                <label>Name:</label>
+                <label>Username:</label>
                 <input type="text" name="userName" required>
             </div>
 
