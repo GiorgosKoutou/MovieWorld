@@ -2,11 +2,9 @@
 
 namespace Services;
 
-require_once("../Database/DbConnection.php");
-require_once("../Database/Models/Movie.php");
+require_once __DIR__ . '/../Database/DbConnection.php';
 
 use Database\DbConnection;
-use Database\Models\Movie;
 
 class MovieService
 {
@@ -17,7 +15,6 @@ class MovieService
    {
 
       $this->connection = DbConnection::connect();
-
    }
 
    /*********** CRUD OPERATIONS ***********/
@@ -36,15 +33,16 @@ class MovieService
    public function getMoviesData()
    {
 
+      // Unset the 'movies' session variable to clear any previous movie data
       unset($_SESSION['movies']);
 
       // Get the user name from POST data if available, otherwise set to null
-      $username = $_POST['user_name'] ?? null;
+      $_SESSION['usernameFilter'] = $_POST['user_name'] ?? [];
 
       // If a user name is provided, fetch movies for that user only
-      if ($username !== null) {
+      if (!empty($_SESSION['usernameFilter'])) {
 
-         $_SESSION['usernameFilter'] = $username;
+         $username = $_SESSION['usernameFilter'];
 
          // Prepare SQL query to select movies by user name
          $query = "SELECT * FROM movies WHERE user_name = :userName";
@@ -70,19 +68,15 @@ class MovieService
       // Fetch all movies as Movie Associative array
       $allMovies = $stm->fetchAll($this->connection::FETCH_ASSOC);
 
-      if(empty($allMovies)) {
+      if (empty($allMovies)) {
 
          // If no movies are found, store the error message in the session
          $_SESSION['empty_data'] = "No movies found";
          return;
-
       }
 
       // Store the movies in the session
       $_SESSION['movies'] = $allMovies;
-
-      // Unset the username filter session variable if it exists
-      unset($_SESSION['usernameFilter']);
 
    }
 
@@ -152,17 +146,17 @@ class MovieService
 
             if ($result && $result['is_hate']) {
 
-                  // If the user previously hated, decrement 'hates' and increment 'likes'
-                  $updateMoviesQuery = "UPDATE movies SET likes = likes + 1, hates = hates - 1 WHERE id = :movieId";
-                  $stm = $this->connection->prepare($updateMoviesQuery);
+               // If the user previously hated, decrement 'hates' and increment 'likes'
+               $updateMoviesQuery = "UPDATE movies SET likes = likes + 1, hates = hates - 1 WHERE id = :movieId";
+               $stm = $this->connection->prepare($updateMoviesQuery);
 
-                  // Execute the query with the movie ID
-                  $stm->execute(['movieId' => $movieId]);
+               // Execute the query with the movie ID
+               $stm->execute(['movieId' => $movieId]);
 
-                  $updateVotingQuery = "UPDATE votings SET is_like = :isLike, is_hate = :hate WHERE movie_id = :movieId AND user_name = :username";
+               $updateVotingQuery = "UPDATE votings SET is_like = :isLike, is_hate = :hate WHERE movie_id = :movieId AND user_name = :username";
 
-                  $stm = $this->connection->prepare($updateVotingQuery);
-                  $stm->execute(['isLike' => $isLike, 'hate' => $isHate, 'movieId' => $movieId, 'username' => $userName]);
+               $stm = $this->connection->prepare($updateVotingQuery);
+               $stm->execute(['isLike' => $isLike, 'hate' => $isHate, 'movieId' => $movieId, 'username' => $userName]);
             } else {
 
                // If not, just increment 'likes'
@@ -193,15 +187,15 @@ class MovieService
 
             if ($result && $result['is_like']) {
 
-                  // If the user previously liked, decrement 'likes' and increment 'hates'
-                  $query = 'UPDATE movies SET hates = hates + 1, likes = likes - 1 WHERE id = :movieId';
-                  $stm = $this->connection->prepare($query);
-                  $stm->execute(['movieId' => $movieId]);
+               // If the user previously liked, decrement 'likes' and increment 'hates'
+               $query = 'UPDATE movies SET hates = hates + 1, likes = likes - 1 WHERE id = :movieId';
+               $stm = $this->connection->prepare($query);
+               $stm->execute(['movieId' => $movieId]);
 
-                  $updateVotingQuery = "UPDATE votings SET is_like = :isLike, is_hate = :hate WHERE movie_id = :movieId AND user_name = :username";
+               $updateVotingQuery = "UPDATE votings SET is_like = :isLike, is_hate = :hate WHERE movie_id = :movieId AND user_name = :username";
 
-                  $stm = $this->connection->prepare($updateVotingQuery);
-                  $stm->execute(['isLike' => $isLike, 'hate' => $isHate, 'movieId' => $movieId, 'username' => $userName]);
+               $stm = $this->connection->prepare($updateVotingQuery);
+               $stm->execute(['isLike' => $isLike, 'hate' => $isHate, 'movieId' => $movieId, 'username' => $userName]);
             } else {
 
                // If not, just increment 'hates'
@@ -242,8 +236,8 @@ class MovieService
       // Get the sort parameter from POST data if available, otherwise set to null
       $sortParam = $_POST['sort'] ?? null;
 
-      // If a sort parameter is provided
-      if (isset($_SESSION['usernameFilter']) && !empty($_SESSION['usernameFilter'])) {
+      // If a sort parameter is provided and the session has a username filter
+      if (!empty($_SESSION['usernameFilter'])) {
 
          // Prepare SQL query to select all movies ordered by the specified sort parameter in descending order
          $query = "SELECT * FROM movies WHERE user_name = :username ORDER BY $sortParam DESC";
@@ -264,20 +258,19 @@ class MovieService
       }
 
       // Prepare SQL query to select all movies ordered by the specified sort parameter in descending order
-         $query = "SELECT * FROM movies ORDER BY $sortParam DESC";
+      $query = "SELECT * FROM movies ORDER BY $sortParam DESC";
 
-         // Prepare the statement for execution
-         $stm = $this->connection->prepare($query);
+      // Prepare the statement for execution
+      $stm = $this->connection->prepare($query);
 
-         // Execute the statement
-         $stm->execute();
+      // Execute the statement
+      $stm->execute();
 
-         // Fetch all movies as Associative array
-         $sortedMovies = $stm->fetchAll($this->connection::FETCH_ASSOC);
+      // Fetch all movies as Associative array
+      $sortedMovies = $stm->fetchAll($this->connection::FETCH_ASSOC);
 
-         // Store the sorted movies in the session
-         $_SESSION['movies'] = $sortedMovies;
-
+      // Store the sorted movies in the session
+      $_SESSION['movies'] = $sortedMovies;
    }
 
    //endregion
@@ -294,38 +287,40 @@ class MovieService
     * @param int $movieId The ID of the movie to check votes for.
     * @return bool Returns true if liked, false if hated, or null if no vote found.
     */
-   public function checkVotes($movieId){
+   public function checkVotes($movieId)
+   {
 
       $votes = $this->getUserVotings();
 
       foreach ($votes as $vote) {
-         if ($vote['movie_id'] === $movieId && $vote['is_like'] == true) 
-               return true;
+         if ($vote['movie_id'] === $movieId && $vote['is_like'] == true)
+            return true;
 
-            if ($vote['movie_id'] === $movieId && $vote['is_hate'] == true)
-               return false;
+         if ($vote['movie_id'] === $movieId && $vote['is_hate'] == true)
+            return false;
       }
    }
    //endregion
 
    //region GetUserVotings
    /**
-   * Retrieves the voting records of the current user from the database.
-   *
-   * This function fetches all voting records for the user stored in the session.
-   * It returns an array of voting records, each containing movie ID, like status, and hate status.
-   *
-   * @return array Returns an array of voting records for the user.
-   */
-   private function getUserVotings(){
+    * Retrieves the voting records of the current user from the database.
+    *
+    * This function fetches all voting records for the user stored in the session.
+    * It returns an array of voting records, each containing movie ID, like status, and hate status.
+    *
+    * @return array Returns an array of voting records for the user.
+    */
+   private function getUserVotings()
+   {
 
       $userName = $_SESSION['user'] ?? null;
 
       $query = 'SELECT movie_id, is_like, is_hate FROM votings WHERE user_name = :username';
-      $stm = $this->connection->prepare( $query) ;
-      $stm->execute(['username'=> $userName]);
+      $stm = $this->connection->prepare($query);
+      $stm->execute(['username' => $userName]);
 
-         return $stm->fetchAll();
+      return $stm->fetchAll();
    }
    //endregion
 

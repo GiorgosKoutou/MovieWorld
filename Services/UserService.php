@@ -2,7 +2,7 @@
 
 namespace Model;
 
-require_once("../Database/DbConnection.php");
+require_once __DIR__ . '/../Database/DbConnection.php';
 
 use Database\DbConnection;
 
