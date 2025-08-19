@@ -29,11 +29,31 @@ class MovieController
      */
     public function getMoviesData()
     {
+        unset($_SESSION['usernameFilter']);
+
         $this->service->getMoviesData();
         header("Location: ../Views/Index.php");
         exit;
     }
 
+    //endregion
+
+    //region GetFilteredMoviesData
+
+    /**
+     * Retrieves filtered movie data based on the username provided in the POST request.
+     * This method updates the session with the username filter and redirects to the Index page.
+     *
+     * @return void
+     */
+    public function getFilteredMoviesData()
+    {
+        $_SESSION['usernameFilter'] = $_POST['user_name'];
+
+        $this->service->getMoviesData();
+        header("Location: ../Views/Index.php");
+        exit;
+    }
     //endregion
 
     //region AddMovie
@@ -46,8 +66,10 @@ class MovieController
      */
     public function addMovie()
     {
+        if(isset($_SESSION['usernameFilter'])) 
+            unset($_SESSION['usernameFilter']);
+
         $this->service->addMovie();
-        $this->service->getMoviesData();
         header("Location: ../Views/Index.php");
         exit;
     }
@@ -68,6 +90,7 @@ class MovieController
     public function addVote()
     {
         $this->service->addVote();
+        $this->service->getMoviesData();
         header("Location: ../Views/index.php");
         exit;
     }
