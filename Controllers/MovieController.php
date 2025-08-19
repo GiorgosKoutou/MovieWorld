@@ -2,7 +2,7 @@
 
 namespace Controllers;
 
-require_once("../Services/MovieService.php");
+require_once __DIR__ . "/../Services/MovieService.php";
 
 use Services\MovieService;
 
@@ -47,6 +47,7 @@ class MovieController
     public function addMovie()
     {
         $this->service->addMovie();
+        $this->service->getMoviesData();
         header("Location: ../Views/Index.php");
         exit;
     }
@@ -87,14 +88,14 @@ class MovieController
     {
         $this->service->sortMovies();
 
-        if(isset($_SESSION['user'])){
+        if (isset($_SESSION['user'])) {
 
             header("Location: ../../Views/index.php");
             exit;
         }
-        
+
         header("Location: ../Views/index.php");
-        exit;   
+        exit;
     }
 
     //endregion

@@ -2,7 +2,7 @@
 
 namespace Controllers;
 
-require_once("../Services/UserService.php");
+require_once __DIR__ . "/../Services/UserService.php";
 
 use Model\UserService;
 
