@@ -24,6 +24,13 @@ if (isset($_SESSION['empty_data'])) {
     echo $_SESSION['empty_data'];
     unset($_SESSION['empty_data']);
 }
+
+if (isset($_SESSION['movie_exists'])) {
+
+    echo $_SESSION['movie_exists'];
+    unset($_SESSION['movie_exists']);
+
+}
 //endregion
 
 //region DisplayMovies
@@ -64,7 +71,7 @@ function displayMovies()
         }
 
         // Check if the user has already liked or hated the movie
-        if (isset($_SESSION['user'])) {
+        if (isset($_SESSION['user']) && $displayUserName !== "You") {
 
             $isLike = $controller->checkVotes($movie['id']);
 
@@ -121,7 +128,7 @@ function displayMovies()
                     <!-- Filter button form -->
                     <div class="username">
                         <p>Posted By: </p>
-                        <form method="POST" action="../Controllers/MovieController.php?action=getMoviesData">
+                        <form method="POST" action="../Controllers/MovieController.php?action=getFilteredMoviesData">
                             <input type="hidden" name="user_name" value="{$movie['user_name']}">
                             <button type="submit">{$displayUserName}</button>
                         </form>
