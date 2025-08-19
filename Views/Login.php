@@ -1,4 +1,4 @@
-<?php 
+<?php
 session_start();
 echo $_SESSION["error_message"] ?? '';
 unset($_SESSION["error_message"]);
@@ -34,7 +34,7 @@ unset($_SESSION["error_message"]);
                 <input type="password" name="password" autocomplete="off" required>
             </div>
 
-            <a href="../Views/Index.php"><button type="submit">Log In</button></a>
+            <button type="submit">Log In</button>
         </form>
     </div>
 
