@@ -36,7 +36,7 @@ class MovieService
       // Unset the 'movies' session variable to clear any previous movie data
       unset($_SESSION['movies']);
 
-      // Get the user name from POST data if available, otherwise set to null
+      // Get the user name from POST data if available, otherwise set to an empty array
       $_SESSION['usernameFilter'] = $_POST['user_name'] ?? [];
 
       // If a user name is provided, fetch movies for that user only
