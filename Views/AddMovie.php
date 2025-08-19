@@ -1,3 +1,5 @@
+<?php session_start(); ?>
+
 <!DOCTYPE html>
 <html lang="en-US">
 
@@ -26,10 +28,7 @@
                 <textarea name="description" rows="5" cols="50"></textarea>
             </div>
 
-            <div class="name">
-                <label>Username:</label>
-                <input type="text" name="userName" required>
-            </div>
+            <input type="hidden" name="userName" value="<?= htmlspecialchars($_SESSION['user']); ?>">
 
             <div class="date">
                 <label>Publication Date:</label>
