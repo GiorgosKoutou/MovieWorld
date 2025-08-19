@@ -99,6 +99,24 @@ class MovieController
     }
 
     //endregion
+
+    //region CheckVotes
+
+    /**
+     * Checks the votes for a specific movie and redirects to the index page.
+     *
+     * This method calls the checkVotes() function from the service to verify votes
+     * for a given movie ID, then redirects the user to the index.php page.
+     *
+     * @param int $movieId The ID of the movie to check votes for.
+     * @return void
+     */
+    public function checkVotes($movieId)
+    {
+        return $this->service->checkVotes($movieId);
+    }
+    //endregion
+
 }
 
 //region Controller's Starting Point
