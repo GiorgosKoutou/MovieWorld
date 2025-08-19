@@ -2,23 +2,25 @@
 
 namespace Views;
 
-require_once("../Services/MovieService.php");
+require_once __DIR__ . "/../Services/MovieService.php";
+require_once __DIR__ . "/../Controllers/MovieController.php";
 
 use Services\MovieService;
+use Controllers\MovieController;
 
 session_start();
 
 //region Error Messages
 
-// Check for any session messages and display them if they exist
-if(isset($_SESSION['connectionError'])) {
+// Check for any session error_messages and display them if they exist
+if (isset($_SESSION['connectionError'])) {
 
     echo $_SESSION['connectionError'];
     unset($_SESSION['connectionError']);
 }
 
 if (isset($_SESSION['empty_data'])) {
-    
+
     echo $_SESSION['empty_data'];
     unset($_SESSION['empty_data']);
 }
@@ -31,22 +33,16 @@ if (isset($_SESSION['empty_data'])) {
  * description, likes, hates, and the username of the poster. Also provides forms
  * to submit "Like" or "Hate" votes for each movie.
  *
- * Retrieves movies from the session if available; otherwise, fetches them using
- * the MovieService. Outputs the movie information as HTML.
- *
  */
 function displayMovies()
 {
 
-    $service = new MovieService();
-
-    if(!isset($_SESSION['movies']))
-         $service->getMoviesData();
-
+    $controller = new MovieController();
 
     // Get the current logged-in user's name from the session, or set to empty string if not set
     $username = $_SESSION["user"] ?? null;
 
+    // Initialize variables for styling and button states
     $hiddenStyle = (!isset($_SESSION['user'])) ? "display: none;" : "";
 
     $hiddenLikeStyle = "";
@@ -58,28 +54,33 @@ function displayMovies()
     // Loop through each movie and display its details
     foreach ($_SESSION['movies'] as $movie) {
 
+        // Initialize variable to hold curreny movie's username
         $displayUserName = $movie['user_name'] ?? '';
 
-
+        // Check if the current movie's username is the same as the logged-in user
         if ($username === $movie['user_name']) {
             $displayUserName = "You" ?? '';
             $hiddenStyle = "display: none;";
         }
 
         // Check if the user has already liked or hated the movie
-        $isLike = $service->checkVotes($movie['id']);
+        if (isset($_SESSION['user'])) {
 
-        if ($isLike === true) {
+            $isLike = $controller->checkVotes($movie['id']);
 
-            $buttonLikeDisable = 'disabled';
-            $hiddenLikeStyle = 'background-color: lightgray;';
+            if ($isLike === true) {
+
+                $buttonLikeDisable = 'disabled';
+                $hiddenLikeStyle = 'background-color: lightgray;';
+            }
+
+            if ($isLike === false) {
+
+                $buttonHateDisable = 'disabled';
+                $hiddenHateStyle = 'background-color: lightgray;';
+            }
         }
 
-        if ($isLike === false) {
-
-            $buttonHateDisable = 'disabled';
-            $hiddenHateStyle = 'background-color: lightgray;';
-        }
 
         // Output the movie information using heredoc syntax
         echo <<<HTML
@@ -129,11 +130,14 @@ function displayMovies()
             </div>
         HTML;
 
+        // Reset variables for the next movie
         $hiddenLikeStyle = "";
         $buttonLikeDisable = "";
 
         $hiddenHateStyle = "";
         $buttonHateDisable = "";
+
+        $hiddenStyle = (isset($_SESSION['user'])) ? "" : "display: none;";
 
         $isLike = null;
     }
@@ -192,15 +196,16 @@ function displayHeader()
 /**
  * Displays the total number of movies found.
  *
- * This function initializes the movies list by calling setMovies(),
- * retrieves the movies array from the session, counts the total number
- * of movies, and outputs the result in a paragraph element.
+ * If the 'movies' session variable is not set, it calls the MovieController to fetch the movies data.
+ * Then, it counts the number of movies and displays the total count.
+ *
+ * Outputs the total number of movies as a paragraph element.
  */
 function displayTotalMovies()
 {
-    if(!isset($_SESSION['movies'])) {
-        $service = new MovieService();
-        $service->getMoviesData();
+    if (!isset($_SESSION['movies'])) {
+        $controller = new MovieController();
+        $controller->getMoviesData();
     }
 
     $movies = $_SESSION['movies'] ?? [];
@@ -356,8 +361,9 @@ function displayMainBodyRightSection()
 
              <!-- Start of All Movies Section -->
             <div class="AllMovies">
-                <a href="Index.php"><button>All Movies</button></a>
-            </div>
+                <form method="POST" action="../Controllers/MovieController.php?action=getMoviesData">
+                    <button type="submit">All Movies</button>
+                </form>
             <!-- End of All Movies Section -->
         HTML;
     }
@@ -418,5 +424,3 @@ function displayMainBodyRightSection()
 </body>
 
 </html>
-
-<!-- <?php unset($_SESSION['movies']); ?> -->
